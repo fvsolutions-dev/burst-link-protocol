@@ -51,6 +51,14 @@ def test_encoding():
     assert interface.encode(packets) == c_interface.encode(packets)
 
 
+def test_c_encode_packets_needing_most_room():
+    # With its CRC, a packet of these sizes reaches or passes a multiple of 254 bytes: one more code byte
+    interface = BurstInterfaceC()
+    for size in [252, 253]:
+        packets = [bytes(i % 251 + 1 for i in range(size))] * 2
+        assert interface.decode(interface.encode(packets)) == packets
+
+
 # if __name__ == "__main__":
 #     # test_c_decoder_python()
 #     # test_python_crc_validation()

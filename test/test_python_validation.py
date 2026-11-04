@@ -1,4 +1,4 @@
-from burst_link_protocol import BurstInterfacePy
+from burst_link_protocol import BurstInterfaceC, BurstInterfacePy
 import pytest
 
 
@@ -26,3 +26,16 @@ def test_python_crc_validation():
             decoded = interface.decode(bytes(data_copy))
             print(decoded)
             assert len(decoded) == len(packets), f"Expected {len(packets)} packets, got {len(decoded)}"
+
+
+def test_large_packets_whole():
+    interface = BurstInterfaceC()
+    for size in [1, 253, 254, 255, 1023, 1024, 1025, 4000]:
+        packet = bytes(i % 251 + 1 for i in range(size))
+        assert interface.decode(interface.encode([packet])) == [packet]
+
+
+def test_many_packets_whole():
+    interface = BurstInterfaceC()
+    packets = [bytes([i + 1]) * 300 for i in range(20)]
+    assert interface.decode(interface.encode(packets)) == packets
