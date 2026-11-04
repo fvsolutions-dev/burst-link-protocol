@@ -1,4 +1,6 @@
 #include <nanobind/nanobind.h>
+
+#include <vector>
 extern "C" {
 #include <burst_link_protocol.h>
 }
@@ -8,9 +10,9 @@ using namespace nb::literals;
 
 struct BurstInterface {
 	burst_managed_decoder_t decoder = {0};
-	uint8_t decoder_buffer[1024] = {0};
+	uint8_t decoder_buffer[4096] = {0};
 	burst_encoder_t encoder = {0};
-	uint8_t encoder_buffer[1024] = {0};
+	std::vector<uint8_t> encoder_buffer;
 
 	// Create buffer to hold the the vector of bytes likt a list
 
@@ -18,7 +20,6 @@ struct BurstInterface {
 
 	BurstInterface() {
 		burst_managed_decoder_init(&decoder, decoder_buffer, sizeof(decoder_buffer), add_packet, this);
-		burst_encoder_init(&encoder, encoder_buffer, sizeof(encoder_buffer));
 	}
 
 	static int add_packet(const uint8_t *data, size_t size, void *user_data) {
@@ -38,9 +39,20 @@ struct BurstInterface {
 	}
 
 	nb::bytes encode(nb::list data) {
+		size_t needed = 1;
+
 		for (size_t i = 0; i < data.size(); i++) {
 			nb::bytes data_bytes = data[i];
-			burst_encoder_add_packet(&encoder, (uint8_t *)data_bytes.data(), data_bytes.size());
+			needed += BURST_MAX_ENCODED(data_bytes.size());
+		}
+		encoder_buffer.resize(needed);
+		burst_encoder_init(&encoder, encoder_buffer.data(), encoder_buffer.size());
+		for (size_t i = 0; i < data.size(); i++) {
+			nb::bytes data_bytes = data[i];
+			if (burst_encoder_add_packet(&encoder, (uint8_t *)data_bytes.data(), data_bytes.size()) !=
+			    BURST_PACKET_READY) {
+				throw nb::value_error("burst: a packet could not be encoded");
+			}
 		}
 		// flush the encoder
 		burst_packet_t packet = burst_encoder_flush(&encoder);

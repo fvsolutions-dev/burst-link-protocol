@@ -24,6 +24,9 @@ typedef struct
 #define COBS_DELIMITER 0x00
 #define COBS_MAX_CODE 0xFF
 #define CRC_SIZE sizeof(uint16_t)
+// A packet of size bytes and its CRC, encoded, at worst: a code byte every 254 bytes, the first
+// one, the delimiter
+#define BURST_MAX_ENCODED(size) ((size) + ((size) + CRC_SIZE) / 254 + 2 + CRC_SIZE)
 
 uint16_t burst_crc16(const uint8_t *data, size_t length);
 

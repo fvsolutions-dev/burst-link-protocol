@@ -13,6 +13,7 @@ dependencies = [
   "crc>=7.1.0,<8.0.0",
   "pyserial>=3.5",
   "janus>=2.0.0",
+  "pydantic>=2.0.0,<3.0.0",
 ]
 license-files = ["LICENSE"]
 
@@ -36,8 +37,8 @@ build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
 minimum-version = "build-system.requires"
-cmake.build-type = "Debug"
-cmake.args = ["-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCOVERAGE=ON"]
+cmake.build-type = "Release"
+cmake.args = ["-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"]
 build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 

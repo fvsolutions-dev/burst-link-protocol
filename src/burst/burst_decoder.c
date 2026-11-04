@@ -69,11 +69,8 @@ burst_status_t burst_decoder_complete_packet(burst_decoder_t *ctx) {
 }
 
 burst_status_t burst_decoder_add_byte(burst_decoder_t *ctx, uint8_t byte) {
-	// Check for space in the buffer
-	if (ctx->out_head >= ctx->buffer_size) {
-		return BURST_OVERFLOW_ERROR;
-	}
-
+	// Room in the buffer is checked where a byte is written: a packet that fills it exactly
+	// still has its delimiter to come, which writes nothing
 	switch (ctx->state) {
 		case COBS_DECODE_FINISH_RUN:
 			// If the byte is zero, the block is complete
@@ -86,6 +83,9 @@ burst_status_t burst_decoder_add_byte(burst_decoder_t *ctx, uint8_t byte) {
 
 			// If last code was 0xF, its a overhead byte
 			if (ctx->code != 0xFF) {
+				if (ctx->out_head >= ctx->buffer_size) {
+					return BURST_OVERFLOW_ERROR;
+				}
 				ctx->buffer[ctx->out_head++] = 0;
 			}
 
@@ -111,6 +111,9 @@ burst_status_t burst_decoder_add_byte(burst_decoder_t *ctx, uint8_t byte) {
 				return BURST_DECODE_ERROR;
 			}
 
+			if (ctx->out_head >= ctx->buffer_size) {
+				return BURST_OVERFLOW_ERROR;
+			}
 			ctx->buffer[ctx->out_head++] = byte;
 
 			if (ctx->block == 1) {

@@ -37,9 +37,10 @@ def test_python_crc_validation():
 def test_max_size_error():
     interface = BurstInterfacePy()
     c_interface = BurstInterfaceC()
-    packets = np.random.bytes(1500)
-    with pytest.raises(Exception):
-        data = c_interface.decode(interface.encode([packets]), fail_on_crc_error=True)
+    packets = np.random.bytes(5000)
+    decoded = c_interface.decode(interface.encode([packets]), fail_on_crc_error=True)
+    assert decoded == []
+    assert c_interface.overflow_errors == 1
 
 
 def test_encoding():
@@ -48,6 +49,14 @@ def test_encoding():
     packets = [b"Hello, world!", b"Goodbye, world!"]
 
     assert interface.encode(packets) == c_interface.encode(packets)
+
+
+def test_c_encode_packets_needing_most_room():
+    # With its CRC, a packet of these sizes reaches or passes a multiple of 254 bytes: one more code byte
+    interface = BurstInterfaceC()
+    for size in [252, 253]:
+        packets = [bytes(i % 251 + 1 for i in range(size))] * 2
+        assert interface.decode(interface.encode(packets)) == packets
 
 
 # if __name__ == "__main__":
