@@ -22,7 +22,7 @@ pip install burst-link-protocol
 ```
 
 ## From Source
-Note: You need a valid C++ compiler and Python 3.7+ installed on your system.
+Note: You need a valid C++ compiler and Python 3.10+ installed on your system.
 
 Basic installation
 ```sh

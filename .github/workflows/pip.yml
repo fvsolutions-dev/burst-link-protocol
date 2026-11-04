@@ -2,37 +2,25 @@ name: Pip
 
 on:
   workflow_dispatch:
-  # pull_request:
-  # push:
-  #   branches:
-  #     - master
+  push:
+  pull_request:
 
 jobs:
   build:
     name: Build with Pip
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # platform: [windows-latest, macos-latest, ubuntu-latest]
-        platform: [ ubuntu-latest]
-        python-version: ["3.12"]
-
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          # The version comes from the tags
+          fetch-depth: 0
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
 
-    - name: Set min macOS version
-      if: runner.os == 'macOS'
-      run: |
-        echo "MACOSX_DEPLOYMENT_TARGET=10.14" >> $GITHUB_ENV
+      - name: Build and install
+        run: pip install --verbose . pytest pytest-benchmark numpy
 
-    - name: Build and install
-      run: |
-        pip install --verbose .
-
-    - name: Test
-      run: python -m pytest
+      - name: Test
+        run: python -m pytest

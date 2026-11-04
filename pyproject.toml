@@ -1,6 +1,7 @@
 [project]
 name = "burst-link-protocol"
-version = "1.1.5"  # Choose one version reference here
+# From the git tag: v1.1.6 is version 1.1.6, and builds between tags get a dev version
+dynamic = ["version"]
 description = "Binary Utility for Reliable Stream Transfer (BURST) is a library for encoding and decoding binary data streams into and from a byte stream."
 requires-python = ">=3.10,<4.0"
 authors = [
@@ -9,7 +10,6 @@ authors = [
 readme = "README.md"
 dependencies = [
   "cobs>=1.2.1,<2.0.0",
-  "numpy>=2.2.3,<3.0.0",
   "crc>=7.1.0,<8.0.0",
   "pyserial>=3.5",
   "janus>=2.0.0",
@@ -19,7 +19,8 @@ license-files = ["LICENSE"]
 
 
 [project.urls]
-Repository = "https://github.com/Florioo/burst-link-protocol"
+Repository = "https://github.com/fvsolutions-dev/burst-link-protocol"
+Changelog = "https://github.com/fvsolutions-dev/burst-link-protocol/blob/master/CHANGELOG.md"
 
 
 [project.optional-dependencies]
@@ -29,14 +30,16 @@ dev = [
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
   "pytest-benchmark>=5.1.0",
+  "numpy>=2.2.3,<3.0.0",
 ]
 
 [build-system]
-requires = ["scikit-build-core>=0.10", "nanobind>=1.3.2"]
+requires = ["scikit-build-core>=0.10", "nanobind>=1.3.2", "setuptools-scm>=8"]
 build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
 minimum-version = "build-system.requires"
+metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
 cmake.build-type = "Release"
 cmake.args = ["-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"]
 build-dir = "build/{wheel_tag}"
@@ -48,17 +51,23 @@ wheel.py-api = "cp312"
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
 
-# Run pytest to ensure that the package was correctly built
-# test-command = "pytest test"
-# test-requires = "pytest"
+# Not free-threaded: the module is not written for it, and would turn the GIL back on
+skip = "cp3??t-*"
 
-# Don't test Python 3.8 wheels on macOS/arm64
-test-skip="cp38-macosx_*:arm64"
+# Each wheel tested as it was built, on its own Python
+test-command = "pytest {project}/test"
+test-requires = ["pytest", "pytest-benchmark", "numpy"]
+
+# pydantic-core has no wheels for Python 3.15 yet, so the package does not install there
+test-skip = "cp315-*"
 
 # Needed for full C++17 support
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
 
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
 
 [tool.ruff.lint]
 select = ["E", "F"]
