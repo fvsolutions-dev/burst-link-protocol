@@ -37,7 +37,7 @@ def test_python_crc_validation():
 def test_max_size_error():
     interface = BurstInterfacePy()
     c_interface = BurstInterfaceC()
-    packets = np.random.bytes(1500)
+    packets = np.random.bytes(5000)
     decoded = c_interface.decode(interface.encode([packets]), fail_on_crc_error=True)
     assert decoded == []
     assert c_interface.overflow_errors == 1

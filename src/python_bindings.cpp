@@ -8,7 +8,7 @@ using namespace nb::literals;
 
 struct BurstInterface {
 	burst_managed_decoder_t decoder = {0};
-	uint8_t decoder_buffer[1024] = {0};
+	uint8_t decoder_buffer[4096] = {0};
 	burst_encoder_t encoder = {0};
 	uint8_t encoder_buffer[1024] = {0};
 
