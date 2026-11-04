@@ -1,0 +1,3 @@
+name: burst-link-protocol
+build:
+  cmake: .
