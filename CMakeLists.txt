@@ -60,7 +60,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-option(COVERAGE "Enable coverage reporting" ON)
+# Off for the package: a coverage build writes its counters at every exit, to the build machine's
+# paths. For a coverage run: -DCOVERAGE=ON (pip/uv: -C cmake.args=-DCOVERAGE=ON)
+option(COVERAGE "Enable coverage reporting" OFF)
 if(COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fprofile-arcs -ftest-coverage")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g -fprofile-arcs -ftest-coverage")

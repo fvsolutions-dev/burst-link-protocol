@@ -37,8 +37,8 @@ build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
 minimum-version = "build-system.requires"
-cmake.build-type = "Debug"
-cmake.args = ["-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCOVERAGE=ON"]
+cmake.build-type = "Release"
+cmake.args = ["-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"]
 build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
